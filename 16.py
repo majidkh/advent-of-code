@@ -1,4 +1,4 @@
-import sys,copy
+import sys,copy,time
 
 f = open("inputs/16.txt", "r")
 lines = f.read().splitlines()
@@ -145,6 +145,8 @@ def find_path ( cursor , end , current_dir , cost , min_cost , path ):
 
     return min_cost
 
+start = time.time()
+
 lowest_score = find_path( start_pos , end_pos , direction,  0 , float("inf") ,   [(start_pos[0] , start_pos[1])]  )
 print("part1", lowest_score)
 
@@ -155,3 +157,5 @@ for result in paths:
             grid2[p[0]][p[1]] = "O"
 
 print("part 2", get_seat_count(grid2))
+
+print("Took:", int(time.time()-start), "seconds!")
