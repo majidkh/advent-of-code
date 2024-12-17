@@ -6,7 +6,7 @@ f.close()
 
 programs = []
 registers = {}
-output = []
+outputs = []
 
 for line in lines:
     if line.startswith("Register"):
@@ -32,44 +32,45 @@ def get_operand_value ( operand_ ):
     elif operand_ == 7:
         return None
 
-def run_program( instruction , val ):
+def run_command( opcode , operand , reg_a , reg_b , reg_c ):
+
+    out_value = None
+    jump = -1
+
     # division adv
-    if instruction == 0:
-        registers["A"] = int (registers["A"] / (2** get_operand_value(val) ) )
+    if opcode == 0:
+        reg_a = int ( reg_a / (2** get_operand_value(operand) ) )
 
     # bxl bitwise XOR ( B , val) - OK
-    if instruction == 1:
-        registers["B"] = registers["B"] ^ val
+    if opcode == 1:
+        reg_b = reg_b ^ operand
 
     # bst modulo 8
-    if instruction == 2:
-        registers["B"] = get_operand_value(val) % 8
+    if opcode == 2:
+        reg_b = get_operand_value(operand) % 8
 
     # jnz
-    if instruction == 3:
-        if registers["A"] == 0:
-            return -1
-        elif registers["A"] > 0:
-            # Jump the pointer
-            return val
+    if opcode == 3:
+        if reg_a > 0:
+            jump = operand
 
     # bxc bitwise XOR ( B , C ) - OK
-    if instruction == 4:
-        registers["B"] = registers["B"] ^ registers["C"]
+    if opcode == 4:
+        reg_b = reg_b ^ reg_c
 
     # out
-    if instruction == 5:
-        output.append (  get_operand_value(val) % 8 )
+    if opcode == 5:
+        out_value = get_operand_value(operand) % 8
 
     # bdv
-    if instruction == 6:
-        registers["B"] = int(registers["A"] / (2 ** get_operand_value(val)))
+    if opcode == 6:
+        reg_b = int(reg_a / (2 ** get_operand_value(operand)))
 
     # cdv
-    if instruction == 7:
-        registers["C"] = int(registers["A"] / (2 ** get_operand_value(val)))
+    if opcode == 7:
+        reg_c = int(reg_a / (2 ** get_operand_value(operand)))
 
-    return -1
+    return jump , out_value , reg_a , reg_b , reg_c
 
 def run_application():
 
@@ -77,7 +78,10 @@ def run_application():
     while True:
         opcode = programs[pointer]
         operand = programs[pointer + 1]
-        jump = run_program ( opcode , operand )
+        jump, out_val, registers["A"], registers["B"], registers["C"] = run_command ( opcode , operand , registers["A"] , registers["B"] , registers["C"] )
+
+        if out_val is not None:
+            outputs.append( out_val )
 
         if jump >= 0:
             pointer = jump
@@ -88,4 +92,4 @@ def run_application():
             break
 
 run_application()
-print("Part 1:", ",".join(map(str, output)) )
+print("Part 1:", ",".join(map(str, outputs)) )
