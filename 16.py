@@ -1,9 +1,9 @@
 import sys,copy,time
+sys.setrecursionlimit(100000)
 
 f = open("inputs/16.txt", "r")
 lines = f.read().splitlines()
 f.close()
-sys.setrecursionlimit(100000)
 grid = [list(list(line)) for line in lines]
 grid2 = copy.deepcopy(grid)
 
