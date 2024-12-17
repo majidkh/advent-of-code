@@ -34,6 +34,8 @@ def get_operand_value ( operand_ ):
 
 def run_command( opcode , operand , reg_a , reg_b , reg_c ):
 
+    #print("command", opcode , operand, reg_a, reg_b, reg_c)
+
     out_value = None
     jump = -1
 
@@ -78,6 +80,7 @@ def run_application():
     while True:
         opcode = programs[pointer]
         operand = programs[pointer + 1]
+
         jump, out_val, registers["A"], registers["B"], registers["C"] = run_command ( opcode , operand , registers["A"] , registers["B"] , registers["C"] )
 
         if out_val is not None:
@@ -91,5 +94,60 @@ def run_application():
         if pointer >= len(programs):
             break
 
+
 run_application()
 print("Part 1:", ",".join(map(str, outputs)) )
+print(registers)
+
+# Part 2
+outputs = programs
+print(outputs)
+
+def run_reverse_command( opcode , operand , out_value , reg_a , reg_b , reg_c ):
+
+    output_index_move = 0
+
+    #print("command", opcode , operand, reg_a, reg_b, reg_c , "Output:" , out_value )
+
+    # division adv
+    if opcode == 0:
+        reg_a = reg_a * (2 ** get_operand_value(operand) )
+
+    # out command
+    if opcode == 5:
+        if operand == 4:
+            if out_value > 0:
+                reg_a += out_value
+            output_index_move = 1
+
+    return reg_a, reg_b , reg_c, output_index_move
+
+def run_reverse_application():
+    commands = [(programs[i], programs[i + 1]) for i in range(0, len(programs), 2)]
+
+    pointer = len(commands) - 1
+    output_pointer = len(programs) - 1
+
+    while True:
+        opcode = commands[pointer][0]
+        operand = commands[pointer][1]
+
+        registers["A"] , registers["B"] , registers["C"] , output_move = run_reverse_command (opcode , operand , programs[output_pointer] , registers["A"] , registers["B"] , registers["C"] )
+
+        if output_move > 0:
+            output_pointer -= output_move
+
+        pointer -= 1
+
+        # move to last jump
+        if pointer < 0:
+            for i in range(len(commands)):
+                if commands[i][0] == 3:
+                    pointer = i
+                    break
+
+        if output_pointer < -1:
+            break
+
+run_reverse_application()
+print(registers)
