@@ -115,10 +115,15 @@ def run_reverse_command( opcode , operand , out_value , reg_a , reg_b , reg_c ):
 
     # out command
     if opcode == 5:
+
+        output_index_move = 1
+
         if operand == 4:
-            if out_value > 0:
-                reg_a += out_value
-            output_index_move = 1
+            reg_a += out_value
+        elif operand == 5:
+            reg_b += out_value
+        elif operand == 6:
+            reg_c += out_value
 
     return reg_a, reg_b , reg_c, output_index_move
 
