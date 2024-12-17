@@ -18,7 +18,6 @@ for line in lines:
         for p in pr:
             programs.append(int(p))
 
-
 # Part 1
 def get_operand_value ( operand_ ):
     if 0 <= operand_ <= 3:
@@ -33,8 +32,6 @@ def get_operand_value ( operand_ ):
         return None
 
 def run_command( opcode , operand , reg_a , reg_b , reg_c ):
-
-    #print("command", opcode , operand, reg_a, reg_b, reg_c)
 
     out_value = None
     jump = -1
@@ -75,7 +72,7 @@ def run_command( opcode , operand , reg_a , reg_b , reg_c ):
     return jump , out_value , reg_a , reg_b , reg_c
 
 def run_application():
-
+    outputs.clear()
     pointer = 0
     while True:
         opcode = programs[pointer]
@@ -86,6 +83,9 @@ def run_application():
         if out_val is not None:
             outputs.append( out_val )
 
+        if len(outputs) > len(programs):
+            break
+
         if jump >= 0:
             pointer = jump
         else:
@@ -94,65 +94,24 @@ def run_application():
         if pointer >= len(programs):
             break
 
+    return outputs
 
 run_application()
 print("Part 1:", ",".join(map(str, outputs)) )
-print(registers)
 
 # Part 2
-outputs = programs
-print(outputs)
+def calculate_registers(program, loop, value):
+    for addition in range(8):
 
-def run_reverse_command( opcode , operand , out_value , reg_a , reg_b , reg_c ):
+        registers["A"] = value * 8 + addition
+        registers["B"] = registers["C"] = 0
 
-    output_index_move = 0
+        if run_application() == programs[loop:]:
+            if loop == 0:
+                return 8 * value + addition
+            best = calculate_registers(program, loop - 1, value * 8 + addition)
+            if best is not None:
+                return best
+    return None
 
-    #print("command", opcode , operand, reg_a, reg_b, reg_c , "Output:" , out_value )
-
-    # division adv
-    if opcode == 0:
-        reg_a = reg_a * (2 ** get_operand_value(operand) )
-
-    # out command
-    if opcode == 5:
-
-        output_index_move = 1
-
-        if operand == 4:
-            reg_a += out_value
-        elif operand == 5:
-            reg_b += out_value
-        elif operand == 6:
-            reg_c += out_value
-
-    return reg_a, reg_b , reg_c, output_index_move
-
-def run_reverse_application():
-    commands = [(programs[i], programs[i + 1]) for i in range(0, len(programs), 2)]
-
-    pointer = len(commands) - 1
-    output_pointer = len(programs) - 1
-
-    while True:
-        opcode = commands[pointer][0]
-        operand = commands[pointer][1]
-
-        registers["A"] , registers["B"] , registers["C"] , output_move = run_reverse_command (opcode , operand , programs[output_pointer] , registers["A"] , registers["B"] , registers["C"] )
-
-        if output_move > 0:
-            output_pointer -= output_move
-
-        pointer -= 1
-
-        # move to last jump
-        if pointer < 0:
-            for i in range(len(commands)):
-                if commands[i][0] == 3:
-                    pointer = i
-                    break
-
-        if output_pointer < -1:
-            break
-
-run_reverse_application()
-print(registers)
+print( "Part 2", calculate_registers(programs, len(programs) - 1, 0))
