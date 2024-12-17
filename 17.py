@@ -100,7 +100,7 @@ run_application()
 print("Part 1:", ",".join(map(str, outputs)) )
 
 # Part 2
-def calculate_registers(program, loop, value):
+def calculate_registers( loop, value):
     for addition in range(8):
 
         registers["A"] = value * 8 + addition
@@ -109,9 +109,9 @@ def calculate_registers(program, loop, value):
         if run_application() == programs[loop:]:
             if loop == 0:
                 return 8 * value + addition
-            best = calculate_registers(program, loop - 1, value * 8 + addition)
+            best = calculate_registers( loop - 1, value * 8 + addition)
             if best is not None:
                 return best
     return None
 
-print( "Part 2", calculate_registers(programs, len(programs) - 1, 0))
+print( "Part 2", calculate_registers( len(programs) - 1, 0))
