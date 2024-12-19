@@ -8,25 +8,22 @@ patterns = [pattern.strip() for pattern in patterns]
 
 designs = lines[1].strip().split("\n")
 
-def is_possible ( design_ , options_  ):
+@cache
+def is_possible ( design_  ):
+    if design_ == "":
+        return 1
 
-    if len(design_) == 0:
-        options_ += 1
-
-        return options_
-
+    count = 0
     for p in patterns:
         if design_.startswith(p):
-            options_ = is_possible ( design_[len(p):] , options_)
+            count += is_possible ( design_[len(p):] )
 
-    return options_
-
-
+    return count
 
 part1 = 0
 part2 = 0
 for design in designs:
-    options = is_possible( design , 0  )
+    options = is_possible( design )
 
     if options > 0:
         part1 += 1
