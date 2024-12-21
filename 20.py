@@ -1,4 +1,3 @@
-import copy
 from collections import deque
 from functools import cache
 
@@ -45,12 +44,7 @@ start = find_symbol("S")
 end = find_symbol("E")
 
 @cache
-def find_path( cheat_pos ):
-
-    grid = copy.deepcopy(track)
-
-    if cheat_pos != (-1,-1):
-        grid[cheat_pos[1]][cheat_pos[0]] = "."
+def find_path():
 
     path = deque([( start[0],start[1],0)]) # Start Position
     path_cache = {(0,0)}
@@ -63,7 +57,7 @@ def find_path( cheat_pos ):
 
             if x < 0 or x >= width or y < 0 or y >= height: continue
 
-            if grid[y][x] == "#": continue
+            if track[y][x] == "#": continue
 
             if (x,y) in path_cache: continue
 
@@ -75,18 +69,5 @@ def find_path( cheat_pos ):
 
     return None
 
-track_time = find_path( (-1,-1))
-
-cheat_count = 0
-
-for i in range(len(cheats)):
-    cheat = cheats[i]
-    cheat_time = find_path(cheat)
-
-    if cheat_time is not None:
-
-        if track_time - cheat_time >= 100:
-            cheat_count += 1
-
-print("Part 1:" , cheat_count)
-
+track_time = find_path()
+print(track_time)
