@@ -1,5 +1,3 @@
-from functools import cache
-
 f = open("inputs/22.txt", "r")
 numbers = tuple(map(int,f.read().splitlines()))
 f.close()
@@ -31,31 +29,25 @@ for number in numbers:
     numbers_changes = {}
     best_prices = {}
 
+    bids = [ [number , number % 10 , 0 ]]
+
     for i in range(2000):
         val = evolve(val)
         price = val % 10
-        change = price - prev_price
+        bids.append( [val , price , price - prev_price  ] )
+        prev_price = val % 10
 
-        numbers_changes[i] = change
-        prev_price = price
+    for i in range( 1, len(bids) - 3 ):
 
-        # Calculate the sequence starting on the 4th item ( 0 , 1 , 2 , 3 ...)
-        if i > 2:
+        chain = bids[i:i+5 ]
+        price = bids[i+3][1]
 
-            sequence = ''
-            for j in range( i - 3 , i + 1 ):
-                sequence += str(numbers_changes[j]) + ' '
-            sequence = sequence.strip()
+        sequence = ( bids[i][2] , bids[i+1][2], bids[i+2][2], bids[i+3][2] )
 
-            numbers_map[str(number) + "_" + str(i)] = [sequence,price]
+        if sequence not in best_prices :
+            best_prices[ sequence ] = price
 
-            if sequence not in best_prices:
-                best_prices[sequence] = price
-            else:
-                if best_prices[sequence] < price:
-                    best_prices[sequence] = price
-
-            unique_sequences.add(sequence)
+        unique_sequences.add(sequence)
 
     sequence_map[number] = best_prices
 
@@ -70,12 +62,11 @@ for seq in unique_sequences:
     seq_best_offer = 0
 
     for number in numbers:
-        if number in sequence_map:
-            if seq in sequence_map[number]:
-                seq_best_offer += sequence_map[number][seq]
+        if number in sequence_map and seq in sequence_map[number]:
+            seq_best_offer += sequence_map[number][seq]
 
     if seq_best_offer > part2:
         part2 = seq_best_offer
-        print("Best" , part2 , seq )
 
 print("Part 2:", part2 )
+
