@@ -1,10 +1,11 @@
 from collections import deque
 from functools import cache
+import copy
 
 f = open("inputs/20.txt", "r")
 lines = f.read().splitlines()
 f.close()
-track = [list(list(line)) for line in lines]
+track = tuple(tuple(tuple(line)) for line in lines)
 width = len(track[0]) # Add one extra
 height = len(track)
 cheats = []
@@ -14,22 +15,9 @@ def get_cell ( col , row ):
         return None
     return track[row][col]
 
-def is_valid_cheat ( col ,row ):
-    if track[row][col] == "#":
-        n = 0
-        for neighbor in [(1,0) , (-1, 0) , (0,1) , (0,-1)]:
-            if get_cell( col + neighbor[0], row + neighbor[1] ) == ".":
-                n += 2
-
-        if n >= 2:
-            return True
-
-    return False
-
 for cy in range( 1 , height - 1):
     for cx in range(width):
-        if is_valid_cheat ( cx , cy):
-            cheats.append((cx,cy))
+        cheats.append((cx,cy))
 
 def find_symbol( symbol ):
 
@@ -44,7 +32,7 @@ start = find_symbol("S")
 end = find_symbol("E")
 
 @cache
-def find_path():
+def find_path( cheat , cheat_length ):
 
     path = deque([( start[0],start[1],0)]) # Start Position
     path_cache = {(0,0)}
@@ -57,7 +45,12 @@ def find_path():
 
             if x < 0 or x >= width or y < 0 or y >= height: continue
 
-            if track[y][x] == "#": continue
+            if track[y][x] == "#":
+
+                # Check cheat
+                if cheat_length == 1 and cheat != (x,y): continue
+                if cheat_length == 20:
+                    
 
             if (x,y) in path_cache: continue
 
@@ -69,5 +62,18 @@ def find_path():
 
     return None
 
-track_time = find_path()
-print(track_time)
+normal_time = find_path( (-1,-1) , 1 )
+
+
+part1 = 0
+print(len(cheats))
+for i in range(len(cheats)):
+    if i % 100 == 0:
+        print(i)
+    c = cheats[i]
+    result = find_path( c , 20 )
+    if result is not None and result < normal_time:
+        if normal_time  - result >= 100:
+            part1 += 1
+
+print("Part 1:", part1)
