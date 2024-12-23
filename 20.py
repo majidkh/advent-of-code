@@ -1,6 +1,7 @@
 from collections import deque
 from functools import cache
 import copy
+from numpy import np
 
 f = open("inputs/20.txt", "r")
 lines = f.read().splitlines()
@@ -48,9 +49,12 @@ def find_path( cheat , cheat_length ):
             if track[y][x] == "#":
 
                 # Check cheat
-                if cheat_length == 1 and cheat != (x,y): continue
-                if cheat_length == 20:
-                    
+                allow_pass = False
+                if cheat_length == 1 and cheat == (x,y): allow_pass = True
+                if cheat_length == 20: allow_pass = False
+
+
+                if not allow_pass: continue
 
             if (x,y) in path_cache: continue
 
