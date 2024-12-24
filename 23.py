@@ -33,3 +33,31 @@ for item in sets:
             break
 
 print("Part 1:" , part1)
+
+groups = []
+for s in sets:
+    groups.append( make_unique(s) )
+
+max_length = 0
+max_group = []
+for pc1,pc2 in connections:
+    for i in range(len(groups)):
+        group = groups[i]
+        if pc1 in group and pc2 in group: continue # already exists
+        if pc1 not in group and pc2 not in group: continue # none exists
+
+        if pc2 in group:
+            a = pc1
+            pc1 = pc2
+            pc2 = a
+
+        # Pc 1 is already there, check if pc2 has connection to the rest of the group
+        if set(group).issubset(network[pc2]):
+            groups[i] =  make_unique( group + tuple([pc2]) )
+
+            if len(groups[i]) > max_length:
+                max_length = len(groups[i])
+                max_group = groups[i]
+
+
+print("Part 2:", ",".join(make_unique(max_group)))
