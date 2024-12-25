@@ -4,87 +4,96 @@ lines = f.read()
 f.close()
 
 inputs = {}
-outputs = {}
-commands = []
+formulas = []
 
+# Extract inputs
 for line in lines:
-    value = re.findall("(\w+): (\d+)", lines)
-    for v in value:
+    data = re.findall("(\w+): (\d+)", lines)
+    for v in data:
         inputs[v[0]] = int(v[1])
 
-values = re.findall("(\w+) (\w+) (\w+) -> (\w+)", lines)
-for v in values:
-    commands.append([ v[0], v[1], v[2], v[3] , False ])
+# Extract formulas
+data = re.findall("(\w+) (\w+) (\w+) -> (\w+)", lines)
+for v in data:
+    formulas.append([ v[0], v[1], v[2], v[3] ])
 
-for c in commands:
-    if c[0] not in inputs:
-        inputs[c[0]] = None
-    if c[2] not in inputs:
-        inputs[c[2]] = None
-
-def calculate( input_command ):
-
-    v1 = inputs[input_command[0]]
-    v2 = inputs[input_command[2]]
-    operator = input_command[1]
-
+# Run a formula with 2 inputs and return the result
+def calculate( v1, operator, v2 ):
     if operator == "AND":
         if v1 == 1 and v2 == 1:
             return 1
         else:
             return 0
-
     elif operator == "OR":
         if v1 == 1 or v2 == 1:
             return 1
         else:
             return 0
-
     elif operator == "XOR":
         if v1 != v2:
             return 1
         else:
             return 0
-
     return 0
 
-def is_command_ready ( input_command ):
-    v1 = inputs[input_command[0]]
-    v2 = inputs[input_command[2]]
+# Run the whole commands with input data
+def run_program ( formulas_ , variables ):
 
-    if v1 is None or v2 is None:
-        return False
+    result = {}
 
-    return True
+    while True:
 
-while True:
+        finished = True
+        for key1 , operator, key2, var_out in formulas_:
 
-    all_done = True
-    for i in range(len(commands)):
-        command = commands[i]
+            value1 = variables[key1] if key1 in variables else (result[key1] if key1 in result else None)
+            value2 = variables[key2] if key2 in variables else (result[key2] if key2 in result else None)
 
-        if is_command_ready(command):
+            # IF already processed skip
+            if var_out in result and result[var_out] is not None: continue
 
-            r = calculate( command )
+            # If formula is not ready and missing inputs, skip
+            if value1 is None or value2 is None:
+                finished = False
+                continue
 
-            if command[3] not in inputs or inputs[command[3]] is None:
-                inputs[command[3]] = r
-            if command[3] not in outputs:
-                outputs[command[3]] = r
+            # Process the command
+            res = calculate( value1 , operator , value2  )
 
-            commands[i][4] = True
+            # Store the result only once
+            if var_out not in result:
+                result[ var_out] = res
 
-        if not commands[i][4]:
-            all_done = False
-    if all_done:
-        break
+        if finished:
+            break
 
+    sorted_dict = {key: value for key, value in sorted(result.items())}
 
-sorted_dict = {key: value for key, value in sorted(outputs.items())}
+    bin_result = ""
+    for key, value in sorted_dict.items():
+        if key.startswith("z"):
+            bin_result += str(value)
 
-output = ""
-for key, value in sorted_dict.items():
-    if key.startswith("z"):
-        output += str(value)
+    return int(bin_result[::-1], 2)
 
-print(int(output[::-1],2))
+# Run the program for part 1
+z = run_program ( formulas , inputs )
+print ("Part 1:" , z )
+
+# Part 2
+bin_x = bin_y = ""
+
+for key, value in inputs.items():
+    if key.startswith("x"):
+        bin_x += str(value)
+    if key.startswith("y"):
+        bin_y += str(value)
+
+x = int(bin_x[::-1],2)
+y = int(bin_y[::-1],2)
+bin_z = format(z, "b")
+
+# Expected result after rewiring
+e = x + y
+bin_e = format(e, "b")
+
