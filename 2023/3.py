@@ -9,24 +9,13 @@ s = re.compile(r'[^a-zA-Z0-9.]')
 
 digits = []
 symbols = []
-width = len(lines[0])
-height = len(lines)
-
-
-def fix_corners(corner):
-    if corner[0] < 0: corner[0] = 0
-    if corner[1] < 0: corner[1] = 0
-    if corner[2] > width: corner[2] = width
-    if corner[3] > height - 1: corner[3] = height - 1
-    return corner
-
 
 for i in (range(len(lines))):
     line = lines[i]
 
     for digit in p.finditer(line):
         # left, top, right, bottom
-        rect = fix_corners([digit.start() - 1, i - 1, digit.end(), i + 1])
+        rect = [digit.start() - 1, i - 1, digit.end(), i + 1]
         digits.append([int(digit.group()), rect])
 
     for symbol in s.finditer(line):
