@@ -40,7 +40,7 @@ def calculate( v1, operator, v2 ):
             return 0
     return 0
 
-# Run the whole commands with input data
+# Run the whole commands with inputs data
 def run_program ( formulas_ , input_vars ):
 
     result = {}
@@ -103,7 +103,7 @@ for key, value in output.items():
 bin_z = bin_z[::-1]
 z = int(bin_z,2)
 
-print ("Part 1:" , z , bin_z )
+print ("Part 1:" , z  )
 
 # Part 2
 
@@ -184,6 +184,7 @@ def fix_wires ( formulas_ , inputs_ , swaps ):
     binary_z = bin_run_program( copy_form , inputs_ )
     if binary_z == bin_e:
         flattened = [wire for tup in swaps for wire in tup]
+        print( swaps)
         print("Part 2:", ",".join(sorted(flattened)))
         quit()
 
@@ -206,6 +207,7 @@ def fix_wires ( formulas_ , inputs_ , swaps ):
 
     # Now find the first swap
     for new_wire in candidates: # First Fix
+
         if new_wire != wire:
             if new_wire.startswith("x"): continue
             if new_wire.startswith("y"): continue
@@ -213,9 +215,11 @@ def fix_wires ( formulas_ , inputs_ , swaps ):
             key_ok = True
 
             for key1, operator, key2, out_ in formulas_:
-                if key1 == new_wire or key2 == new_wire:
-                    if out_.startswith("z"):
+                if out_ == new_wire :
+                    if operator != "XOR":
                         key_ok = False
+                    else:
+                        break
 
             if not key_ok: continue
 
@@ -230,5 +234,5 @@ def fix_wires ( formulas_ , inputs_ , swaps ):
                 old_score = new_score
                 fix_wires ( formulas_, inputs_, swaps  + [ (wire , new_wire) ] )
 
-fix_wires ( formulas , inputs , [('z06', 'fhc')]  )
+fix_wires ( formulas , inputs , []  )
 

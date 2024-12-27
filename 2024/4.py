@@ -5,7 +5,7 @@ f.close()
 width = len(lines[0])
 height = len(lines)
 
-# find a character in the input data by coordination
+# find a character in the inputs data by coordination
 def find ( x , y ):
 
     if width > x >= 0 and height > y >= 0:
