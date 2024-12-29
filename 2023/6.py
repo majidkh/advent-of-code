@@ -1,15 +1,15 @@
 import re
 
-f = open("inputs/6.txt", "r")
 times = []
 distances = []
 
+f = open("inputs/6.txt", "r")
 for line in f.read().splitlines():
     if line.startswith("Time"):
         times = list(re.findall(r"\d+", line))
     elif line.startswith("Distance"):
         distances = list(re.findall(r"\d+", line))
-
+f.close()
 
 def calculate_ways(time, record):
     ways = 0
