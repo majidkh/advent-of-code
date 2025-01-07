@@ -25,12 +25,14 @@ pipe_connections = {
 }
 
 
-def pretty_print(map_, replace=False):
+def pretty_print(map_, loop_=None):
     output = ""
     for j in range(len(map_)):
         for i in range(len(map_[0])):
 
-            if map_[j][i] in pipe_chars and replace:
+            if loop_ is not None and (i, j) not in loop_:
+                output += "."
+            elif map_[j][i] in pipe_chars:
                 output += pipe_chars[map_[j][i]]
             else:
                 output += map_[j][i]
@@ -78,15 +80,13 @@ def is_connected(map_, current_pipe, next_pipe):
     return True
 
 
-def find_loop(map_, sx, sy):
+def find_loop(map_, col, row):
     path = []
-
     seen = set()
     blocks = deque()
-    blocks.append((sx, sy))
+    blocks.append((col, row))
 
     while blocks:
-
         x, y = blocks.popleft()
         if (x, y) in seen: continue
         seen.add((x, y))
@@ -99,21 +99,11 @@ def find_loop(map_, sx, sy):
                 path.append((nx, ny))
                 blocks.append((nx, ny))
                 break
-
     return path + [(sx, sy)]
 
 
-loop = find_loop(grid, sx, sy)
+loop = set(find_loop(grid, sx, sy))
 print("Part 1:", len(loop) // 2)
-
-# Part 2 Remove unwanted pipes
-grid2 = [['.' for _ in range(width)] for _ in range(height)]
-for j in range(height):
-    for i in range(width):
-        if (i, j) in loop:
-            grid2[j][i] = grid[j][i]
-        else:
-            grid2[j][i] = "."
 
 
 def count_crosses(map_, tile, bend_pipes):
@@ -122,24 +112,23 @@ def count_crosses(map_, tile, bend_pipes):
     last_pipe = ""
     for x in range(x, width):
         if map_[y][x] in ".-": continue
+        if (x, y) not in loop: continue
         if last_pipe in bend_pipes and map_[y][x] == bend_pipes[last_pipe]:
             crosses += 1
         elif map_[y][x] == "|":
             crosses += 1
-
         last_pipe = map_[y][x]
-
     return crosses
 
 
 part2 = 0
 for j in range(height):
     for i in range(width):
-        if grid2[j][i] != ".": continue
-        c1 = count_crosses(grid2, (i, j), {"F": "J", "L": "7"})
+        if (i, j) in loop: continue
+        c1 = count_crosses(grid, (i, j), {"F": "J", "L": "7"})
         if c1 % 2 == 1:
             part2 += 1
 
 print("Part 2:", part2)
 
-# pretty_print(grid2 , True )
+# pretty_print(grid , loop )
