@@ -1,78 +1,70 @@
-import re
-import time
+from functools import cache
 
-f = open('inputs/12.txt', 'r')
+f = open("inputs/12.txt", "r")
 lines = f.read().splitlines()
 f.close()
 
-data = []
-data2 = []
-
+records = []
 for line in lines:
-    parts = line.split(' ')
-    values = tuple(map(int, parts[1].split(",")))
-    data.append([parts[0], values])
-
-    # For Part 2
-    s = (parts[0] + "?") * 5
-    v = (parts[1] + ",") * 5
-    v = v[:-1]
-    values2 = tuple(map(int, v.split(",")))
-    data2.append([s, values2])
+    s = line.split(" ")[0]
+    g = tuple(map(int, line.split(" ")[1].split(",")))
+    records.append((s, g))
 
 
+@cache
+def get_arrangements(springs, groups):
+    if len(groups) == 0:
+        if "#" in springs:
+            return 0
+        else:
+            return 1
 
-def is_valid(combination, numbers):
-    if combination.count("#") != sum(numbers):
-        return False
-
-    springs = re.findall(r"(#+)", combination)
-    if len(springs) != len(numbers): return False
+    count = 0
+    group = groups[0]
+    spring_length = 0
+    spring_seen = False
     for i in range(len(springs)):
-        if len(springs[i]) != numbers[i]: return False
-    return True
 
-seen = set()
-def get_combinations(signature, numbers, count=0):
+        spring = springs[i]
 
-    pointer = signature.find("?")
-    if pointer == -1:
-        if is_valid(signature, numbers):
-            return count + 1
-        return count
+        next_spring = None
+        if i < len(springs) - 1:
+            next_spring = springs[i + 1]
 
-    if signature.count("#") > sum(numbers):
-        return count
+        prev_spring = None
+        if i >= group:
+            prev_spring = springs[i - group]
+            if prev_spring == "#": break
 
+        if spring == "#":
+            spring_length += 1
+            spring_seen = True
 
-    # Check if first digit is met
-    ci = 0
-    ni = 0
-    for ch in signature:
-        if ni >= len(numbers):
-            break
-        if ch == "?":
-            break
-        elif ch == "#":
-            ci += 1
-        elif ch == ".":
-            if ci > 0:
-                if numbers[ni] != ci:
-                    return count
-                else:
-                    ni += 1
-                    ci = 0
+        if spring == "?": spring_length += 1
 
-    for i in ".#":
-        combination = signature[0:pointer] + i + signature[pointer + 1:]
-        c = get_combinations(combination, numbers, count)
-        if c is not None:
-            count = c
+        if spring == ".":
+            spring_length = 0
+            if spring_seen:
+                break
+        if spring_length >= group:
+
+            current_spring = springs[i + 1 - group:i + 1]
+            if next_spring == "#": continue
+            if prev_spring == "#": continue
+
+            count += get_arrangements(springs[i + 2:], groups[1:])
+            if current_spring[0] == "#":
+                break
 
     return count
 
 
 part1 = 0
-for s, v in data:
-    part1 += get_combinations(s, v)
-print("Part 1:", part1)
+for s, g in records:
+    part1 += get_arrangements(s, g)
+print("Part1: ", part1)
+
+part2 = 0
+for s, g in records:
+    part2 += get_arrangements("?".join([s] * 5), g * 5)
+print("Part2: ", part2)
