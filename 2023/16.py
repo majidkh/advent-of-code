@@ -5,16 +5,8 @@ f.close()
 width = len(lines[0])
 height = len(lines)
 
-def pretty_print ( grid):
-    output = ""
-    for row in grid:
-        for col in row:
-            output += col
-        output += "\n"
-    print(output)
 
-
-def calculate_energizes( start_beam ):
+def calculate_tiles( start_beam ):
 
     beams = [start_beam]
     seen = set()
@@ -82,21 +74,21 @@ def calculate_energizes( start_beam ):
 
     return sum(cell == '#' for row in grid for cell in row)
 
-part1 = calculate_energizes([-1,0,1,0])
+part1 = calculate_tiles([-1,0,1,0])
 print("Part 1:", part1)
 
 beam_starts = []
-for col in range(width):
-    beam_starts.append([col, -1, 0, 1])
-    beam_starts.append([col, height, 0, -1])
+for x in range(width):
+    beam_starts.append([x, -1, 0, 1])
+    beam_starts.append([x, height, 0, -1])
 
-for row in range(height):
-    beam_starts.append([-1, row, 1, 0])
-    beam_starts.append([ width, row, -1, 0])
+for y in range(height):
+    beam_starts.append([-1, y, 1, 0])
+    beam_starts.append([ width, y, -1, 0])
 
 part2 = 0
 for start in beam_starts:
-    res = calculate_energizes(start)
+    res = calculate_tiles(start)
     if res > part2:
         part2 = res
 
