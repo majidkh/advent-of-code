@@ -12,10 +12,10 @@ end = (width - 1, height - 1)
 reverse_directions = {"<>", "><", "^v", "v^"}
 
 
-def find_path():
+def find_path( min_straight = 0, max_straight = 3 ):
     x, y = (0,0)
-    nodes = []  # Heat loss , x , y , direction , direction count
-    heapq.heappush(nodes, (0, x, y, "", 0))  # Start with (distance 0, city 'A')
+    nodes = []  # Heat loss , x , y , direction , direction count, path
+    heapq.heappush(nodes, (0, x, y, "", 0 ))
 
     seen = {}
 
@@ -31,11 +31,15 @@ def find_path():
 
         for i, j, d in neighbours:
 
+            if min_straight > 0:
+                if count < min_straight and d != direction and direction != "":
+                    continue
+
             nx, ny = (x + i, y + j)
             if nx < 0 or nx >= width or ny < 0 or ny >= height: continue
 
             if d + direction in reverse_directions: continue
-            if count >= 3 and d == direction: continue
+            if count >= max_straight and d == direction: continue
 
             nc = 1
             if d == direction: nc = count + 1
@@ -48,4 +52,5 @@ def find_path():
     return None
 
 
-print("Part 1:", find_path())
+print("Part 1:", find_path() )
+print("Part 1:", find_path(4,10) )
