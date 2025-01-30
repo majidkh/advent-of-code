@@ -1,17 +1,26 @@
+import math
 import re
 
 f = open('inputs/18.txt', 'r')
 lines = f.read().splitlines()
 f.close()
 
-dirs = {"R": (1, 0), "L": (-1, 0), "U": (0, -1), "D": (0, 1)}
+instructions = []
+instructions2 = []
+num_dirs = {"0":"R","1":"D","2":"L", "3":"U"}
+dirs = {"R": (1, 0), "D": (0, 1), "L": (-1, 0), "U": (0, -1)}
+
+for line in lines:
+    data = re.findall(r'(\w+) (\d+) \(#([0-9a-z]+)\)', line)
+    instructions.append( (data[0][0], int(data[0][1])) )
+    instructions2.append( (num_dirs[data[0][2][-1]], int(data[0][2][:-1],16)) )
+
 
 # find minimum x , y so later we can adjust the grid
 x, y = 0, 0
 min_x = min_y = 0
-for line in lines:
-    data = re.findall(r'(\w+) (\d+)', line)
-    direction, length = (data[0][0], int(data[0][1]))
+for instruction in instructions:
+    direction, length = instruction
     d = dirs[direction]
     for i in range(length):
         x += d[0]
@@ -26,9 +35,8 @@ min_y -= 1
 # create the dig plans
 plans = set()
 x, y = 0, 0
-for line in lines:
-    data = re.findall(r'(\w+) (\d+)', line)
-    direction, length = (data[0][0], int(data[0][1]))
+for instruction in instructions:
+    direction, length = instruction
     d = dirs[direction]
     for i in range(length):
         x += d[0]
@@ -101,5 +109,16 @@ for j in range(height):
                 grid[j][i] = "#"
                 part1 += 1
 
+
+def pretty_print(g):
+    output = ""
+    for row in range(height):
+        for col in range(width):
+            output += str(g[row][col])
+        output += "\n"
+    print(output)
+
+
+# pretty_print(grid)
 
 print("Part 1:", part1)
