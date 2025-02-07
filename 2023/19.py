@@ -56,7 +56,6 @@ def sort_ratings(xmas, node="in"):
 
     return False
 
-
 part1 = 0
 for p in parts:
     if sort_ratings(p):
@@ -64,35 +63,20 @@ for p in parts:
 
 print("Part 1:", part1)
 
-part2 = 0
-
-
-def is_range_valid(range_):
-    if range_[0] > range_[1]:
-        return False
-
-    return True
-
-
 def check_accepted(node, xmas):
     result = 0
-
     workflow = workflows[node]
     for w in workflow:
-
         for pp in xmas:
 
             dest = w["d"]
             part_range = xmas[pp]
-            if not is_range_valid(part_range): continue
-
             yes = part_range
             no = None
 
             if "v" in w:
 
                 if w["v"] != pp: continue
-
                 opr = w["o"]
                 target = w["n"]
 
@@ -103,36 +87,26 @@ def check_accepted(node, xmas):
                         yes = (target + 1, part_range[1])
                         no = (part_range[0], target)
 
-            if is_range_valid(yes):
+            xmas2 = xmas.copy()
+            xmas2[pp] = yes
 
-                xmas2 = xmas.copy()
-                xmas2[pp] = yes
+            if dest == "A":
+                numbers = []
+                for t in xmas2:
+                    numbers.append(xmas2[t][1] - xmas2[t][0] + 1)
+                result += reduce(mul, numbers)
 
-                if dest == "A":
-
-                    numbers = []
-                    for t in xmas2:
-                        numbers.append(xmas2[t][1] - xmas2[t][0] + 1)
-
-                    result += reduce(mul, numbers)
-
-
-                elif dest == "R":
-                    result += 0
-                else:
-
-                    result += check_accepted(dest, xmas2)
+            elif dest == "R":
+                result += 0
+            else:
+                result += check_accepted(dest, xmas2)
 
             if no is not None:
                 xmas[pp] = no
-                continue
 
             if "v" not in w:
                 return result
-
     return result
 
-
-xmas_all = {"x": (1, 4000), "m": (1, 4000), "a": (1, 4000), "s": (1, 4000)}
-
-print("Part 2:", check_accepted("in", xmas_all))
+part2 = check_accepted("in", {"x": (1, 4000), "m": (1, 4000), "a": (1, 4000), "s": (1, 4000)} )
+print("Part 2:", part2)
