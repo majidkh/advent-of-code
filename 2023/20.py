@@ -18,7 +18,7 @@ for line in lines:
         result = line[1:].split("->")
         m_name = result[0].strip()
         connections = [s.strip() for s in result[1].split(",")]
-        m = {"status": "off", "signal": "low", "type": line[0], "connections": connections}
+        m = {"signal": "low", "type": line[0], "connections": connections}
         modules[m_name] = m
 
         for c in connections:
@@ -27,7 +27,7 @@ for line in lines:
             connected_inputs[c][m_name] = "low"
 
 
-def flik(sender, conns, signal):
+def flik(sender, conns, signal ):
     low_pulses = 1
     high_pulses = 0
 
@@ -43,7 +43,7 @@ def flik(sender, conns, signal):
             high_pulses += 1
 
         if not conn in modules:
-            modules[conn] = {"status": "off", "signal": "low", "type": "test", "connections": []}
+            modules[conn] = {"signal": signal, "type": "test", "connections": []}
         module = modules[conn]
 
         # Flip-flop module
@@ -75,7 +75,7 @@ def flik(sender, conns, signal):
 
 low, high = 0, 0
 for i in range(1000):
-    l, h = flik("broadcaster", broadcaster, "low")
+    l, h = flik("broadcaster", broadcaster, "low"  )
     low += l
     high += h
 
