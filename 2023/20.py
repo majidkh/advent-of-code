@@ -1,4 +1,6 @@
 from collections import deque
+from functools import reduce
+from math import lcm
 
 f = open("inputs/20.txt", "r")
 lines = f.read().splitlines()
@@ -27,7 +29,21 @@ for line in lines:
             connected_inputs[c][m_name] = "low"
 
 
-def flik(sender, conns, signal ):
+def find_feeds(nodes, depth=1):
+    feeds = []
+    for n in nodes:
+        for m_ in modules:
+            module_ = modules[m_]
+            if n in module_["connections"]:
+                feeds.append(m_)
+
+    if depth > 1:
+        return find_feeds(feeds, depth - 1)
+
+    return feeds
+
+
+def flik(sender, conns, signal, counter):
     low_pulses = 1
     high_pulses = 0
 
@@ -37,6 +53,11 @@ def flik(sender, conns, signal ):
 
     while queue:
         sender, signal, conn = queue.popleft()
+
+        if sender in loops and loops[sender] == 0:
+            if signal == "high":
+                loops[sender] = counter
+
         if signal == "low":
             low_pulses += 1
         else:
@@ -57,12 +78,13 @@ def flik(sender, conns, signal ):
                 for c_ in module["connections"]:
                     queue.append([conn, module["signal"], c_])
 
+
         # Conjunction module
         elif module["type"] == "&":
             connected_inputs[conn][sender] = signal
+
             mem_signals = set(connected_inputs[conn].values())
             if len(mem_signals) == 1 and next(iter(mem_signals)) == "high":
-
                 for c_ in module["connections"]:
                     queue.append([conn, "low", c_])
             else:
@@ -74,9 +96,15 @@ def flik(sender, conns, signal ):
 
 
 low, high = 0, 0
-for i in range(1000):
-    l, h = flik("broadcaster", broadcaster, "low"  )
-    low += l
-    high += h
+loops = {}
+for r in find_feeds(["rx"], 2):  # Change the depth if needed
+    loops[r] = 0
+
+for i in range(10000):
+    l, h = flik("broadcaster", broadcaster, "low", i + 1)
+    if i < 1000:
+        low += l
+        high += h
 
 print("Part 1:", low * high)
+print("Part 2:", reduce(lcm, list(loops.values()) ))
