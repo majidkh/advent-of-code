@@ -16,7 +16,7 @@ fn count_passwords( passes : bool )-> i32
     let mut last_dial = 50;
     let mut password = 0;
 
-    if let Ok(lines) = read_lines("src/1.txt") {
+    if let Ok(lines) = read_lines("src/input/1.txt") {
         for line in lines {
             if let Ok(text) = line {
                 let dir = text.chars().next().unwrap();
