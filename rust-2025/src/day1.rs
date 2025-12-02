@@ -1,4 +1,4 @@
-use crate::helper::read_lines;
+use crate::helper::*;
 
 pub fn part1() -> i32
 {
